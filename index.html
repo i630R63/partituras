@@ -25,21 +25,22 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
             background: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 1rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             text-align: center;
             width: 100%;
             max-width: 700px;
             position: relative;
+            box-sizing: border-box;
         }
 
-        h1 { margin-top: 0; font-size: 1.5rem; }
+        h1 { margin-top: 0; font-size: 1.3rem; }
 
         .header-controls {
             display: flex;
@@ -47,14 +48,15 @@
             align-items: center;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
         }
 
         .settings {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .settings-group {
@@ -63,23 +65,22 @@
             align-items: flex-start;
         }
 
-        label { font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; color: #718096; }
+        label { font-size: 0.7rem; font-weight: bold; margin-bottom: 2px; color: #718096; }
 
         select {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 5px;
             border: 1px solid #cbd5e0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             background: white;
         }
 
-        /* Botón toggle cronómetro */
         .timer-toggle {
-            padding: 8px 15px;
+            padding: 6px 12px;
             border-radius: 5px;
             border: 2px solid #cbd5e0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
             cursor: pointer;
             background: #edf2f7;
@@ -99,18 +100,19 @@
         .help-btn {
             background: #edf2f7;
             border: 2px solid var(--primary);
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             cursor: help;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--primary);
             transition: all 0.2s;
         }
 
         .help-btn:hover { background: var(--primary); color: white; }
 
+        /* TOOLTIP ADAPTADO PARA MÓVILES */
         .help-tooltip {
             visibility: hidden;
             width: 460px;
@@ -129,6 +131,7 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.25);
             border: 2px solid var(--primary);
             pointer-events: none;
+            box-sizing: border-box;
         }
 
         .help-tooltip::after {
@@ -147,9 +150,9 @@
             transform: translateY(0);
         }
 
-        /* Barra de Tiempo */
         .timer-container {
-            width: 400px;
+            width: 100%;
+            max-width: 400px;
             height: 6px;
             background: #edf2f7;
             margin: 0 auto 5px;
@@ -168,29 +171,31 @@
             background: #fff;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             max-width: 100%;
+            height: auto;
         }
 
-        #helpCanvas { border: none; margin-bottom: 0; }
+        #helpCanvas { border: none; margin-bottom: 0; width: 100%; }
 
         .input-area {
-            min-height: 180px;
+            min-height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
         }
 
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
 
         button.note-btn {
-            padding: 15px 10px;
-            font-size: 1.1rem;
+            padding: 12px 8px;
+            font-size: 1rem;
             font-weight: bold;
             border: none;
             border-radius: 8px;
@@ -204,9 +209,11 @@
             display: flex;
             justify-content: center;
             position: relative;
-            height: 150px;
+            height: 140px;
             width: 100%;
-            padding: 0 10px;
+            max-width: 100%;
+            overflow-x: auto;
+            padding-bottom: 5px;
         }
 
         .key {
@@ -216,29 +223,30 @@
             cursor: pointer;
             user-select: none;
             transition: background 0.1s;
+            flex-shrink: 0;
         }
 
         .white-key {
-            width: 50px;
+            width: 42px;
             height: 100%;
             background: white;
             z-index: 1;
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            padding-bottom: 10px;
-            font-size: 0.8rem;
+            padding-bottom: 8px;
+            font-size: 0.7rem;
             font-weight: bold;
             color: #a0aec0;
         }
 
         .black-key {
-            width: 30px;
+            width: 24px;
             height: 60%;
             background: var(--black-key);
             z-index: 2;
-            margin-left: -15px;
-            margin-right: -15px;
+            margin-left: -12px;
+            margin-right: -12px;
             border-radius: 0 0 3px 3px;
         }
 
@@ -249,32 +257,46 @@
 
         button.note-btn:disabled, .key.disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
 
-        .correct { background-color: var(--success) !important; }
-        .wrong { background-color: var(--error) !important; }
-
         .feedback {
             height: 24px;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
         .stats-container {
-            margin-top: 1.5rem;
-            padding-top: 1rem;
+            margin-top: 1rem;
+            padding-top: 0.8rem;
             border-top: 1px solid #edf2f7;
         }
 
-        .stats { font-size: 0.95rem; color: #4a5568; margin-bottom: 8px; }
-
-        .review-list { font-size: 0.9rem; color: #e53e3e; font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
+        .stats { font-size: 0.85rem; color: #4a5568; margin-bottom: 6px; }
+        .review-list { font-size: 0.8rem; color: #e53e3e; font-weight: 600; display: flex; flex-direction: column; gap: 2px; }
 
         @media (max-width: 600px) {
+            .container { padding: 1rem; }
+            .header-controls { justify-content: center; }
             .buttons-grid { grid-template-columns: repeat(2, 1fr); }
-            .help-tooltip { width: 300px; right: -20px; }
-            .white-key { width: 35px; font-size: 0.6rem; }
+            
+            /* Ajuste crítico para el tooltip en móviles */
+            .help-tooltip { 
+                width: 90vw; 
+                max-width: 440px;
+                right: auto;
+                left: 50%;
+                transform: translate(-50%, -10px); 
+            }
+            .help-tooltip::after {
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .help-container:hover .help-tooltip {
+                transform: translate(-50%, 0);
+            }
+
+            .white-key { width: 34px; font-size: 0.6rem; }
             .black-key { width: 20px; margin-left: -10px; margin-right: -10px; }
-            .timer-container { width: 100%; }
         }
     </style>
 </head>
@@ -312,9 +334,9 @@
         </div>
 
         <div class="help-container">
-            <button class="help-btn">?</button>
+            <button class="help-btn" aria-label="Ayuda">?</button>
             <div class="help-tooltip">
-                <p style="margin: 0 0 10px 0; font-size: 0.9rem; font-weight: bold; color: var(--primary);">Guía de Estudio</p>
+                <p style="margin: 0 0 10px 0; font-size: 0.85rem; font-weight: bold; color: var(--primary);">Guía de Estudio</p>
                 <canvas id="helpCanvas" width="430" height="280"></canvas>
             </div>
         </div>
@@ -364,11 +386,10 @@
     let score = { correct: 0, wrong: 0 };
     let errorTracker = {};
     
-    // Configuración Reto (Cronómetro)
     let isTimerEnabled = false;
     let timerInterval = null;
     let timeLeft = 0;
-    const TIMER_LIMIT = 3000; // 3 segundos en ms
+    const TIMER_LIMIT = 3000;
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -398,10 +419,10 @@
     function getNoteDescription(pos) {
         if (pos % 2 === 0) {
             const lines = { "-4":"L1", "-2":"L2", "0":"L3", "2":"L4", "4":"L5" };
-            return lines[pos] || (pos < 0 ? "Adicional Inf." : "Adicional Sup.");
+            return lines[pos] || (pos < 0 ? "Adic. Inf." : "Adic. Sup.");
         } else {
             const spaces = { "-3":"E1", "-1":"E2", "1":"E3", "3":"E4" };
-            return spaces[pos] || (pos < 0 ? "Espacio Inf." : "Espacio Sup.");
+            return spaces[pos] || (pos < 0 ? "Esp. Inf." : "Esp. Sup.");
         }
     }
 
@@ -480,12 +501,10 @@
         clearInterval(timerInterval);
         timeLeft = TIMER_LIMIT;
         timerBar.style.width = "100%";
-        
         timerInterval = setInterval(() => {
             timeLeft -= 100;
             const percentage = (timeLeft / TIMER_LIMIT) * 100;
             timerBar.style.width = percentage + "%";
-            
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 handleTimeOut();
@@ -495,7 +514,6 @@
 
     function handleTimeOut() {
         if (isWaiting) return;
-        // Simular un fallo por tiempo
         feedbackArea.style.color = 'var(--error)';
         feedbackArea.textContent = "¡Tiempo agotado!";
         handleGuess("TIMEOUT_ERROR", null);
@@ -505,15 +523,12 @@
         isWaiting = false;
         feedbackArea.textContent = "";
         renderInputInterface();
-
         let pos;
         const mode = modeSelect.value;
         do { pos = Math.floor(Math.random() * 15) - 7; } 
         while ((mode === 'lines' && Math.abs(pos) % 2 !== 0) || (mode === 'spaces' && Math.abs(pos) % 2 === 0));
-
         let noteIdx = (clefSelect.value === 'treble') ? (6 + pos) % 7 : (1 + pos) % 7;
         if (noteIdx < 0) noteIdx += 7;
-
         currentNote = { pos, name: noteNames[noteIdx], description: getNoteDescription(pos) };
         drawStaff();
         drawNote(pos);
@@ -524,7 +539,6 @@
         if (isWaiting && guess !== "TIMEOUT_ERROR") return;
         isWaiting = true;
         clearInterval(timerInterval);
-
         const isCorrect = guess === currentNote.name;
         if (isCorrect) {
             score.correct++;
@@ -538,31 +552,24 @@
             const id = `${currentNote.name} (${currentNote.description})`;
             errorTracker[id] = (errorTracker[id] || 0) + 1;
             if (element) element.classList.add('wrong');
-            
             if (guess !== "TIMEOUT_ERROR") {
                 feedbackArea.style.color = 'var(--error)';
                 feedbackArea.textContent = `Error: Era ${currentNote.name}`;
             }
             playFeedbackSound(false);
-            
-            // Mostrar respuesta correcta
             if (inputModeSelect.value === 'name') {
                 document.querySelectorAll('.note-btn').forEach(b => { if(b.textContent === currentNote.name) b.classList.add('correct'); });
             } else {
                 document.querySelectorAll('.white-key').forEach(k => { if(k.dataset.note === currentNote.name) k.classList.add('correct'); });
             }
         }
-
         statsArea.textContent = `Aciertos: ${score.correct} | Fallos: ${score.wrong}`;
         updateReviewArea();
-        
-        // Bloquear entrada
         if (inputModeSelect.value === 'name') {
             document.querySelectorAll('.note-btn').forEach(b => b.disabled = true);
         } else {
             document.querySelectorAll('.key').forEach(k => k.classList.add('disabled'));
         }
-
         setTimeout(generateNewNote, 2000);
     }
 
@@ -611,7 +618,6 @@
         });
     }
 
-    // Handlers
     timerToggleBtn.onclick = () => {
         isTimerEnabled = !isTimerEnabled;
         timerToggleBtn.classList.toggle('active', isTimerEnabled);
