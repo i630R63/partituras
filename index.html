@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenador de Notas Musicales - Pro Piano Edition</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --success: #48bb78;
+            --error: #f56565;
+            --bg: #f7fafc;
+            --text: #2d3748;
+            --white-key: #ffffff;
+            --black-key: #2d3748;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+        }
+
+        h1 { margin-top: 0; font-size: 1.5rem; }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .settings {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .settings-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        label { font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; color: #718096; }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #cbd5e0;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: white;
+        }
+
+        /* Botón toggle cronómetro */
+        .timer-toggle {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 2px solid #cbd5e0;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: #edf2f7;
+            transition: all 0.2s;
+        }
+        .timer-toggle.active {
+            background: #feb2b2;
+            border-color: #f56565;
+            color: #c53030;
+        }
+
+        .help-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .help-btn {
+            background: #edf2f7;
+            border: 2px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: help;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+
+        .help-btn:hover { background: var(--primary); color: white; }
+
+        .help-tooltip {
+            visibility: hidden;
+            width: 460px;
+            background-color: white;
+            color: var(--text);
+            text-align: center;
+            border-radius: 12px;
+            padding: 15px;
+            position: absolute;
+            z-index: 1000;
+            top: 120%;
+            right: 0;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            border: 2px solid var(--primary);
+            pointer-events: none;
+        }
+
+        .help-tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            right: 15px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: transparent transparent var(--primary) transparent;
+        }
+
+        .help-container:hover .help-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Barra de Tiempo */
+        .timer-container {
+            width: 400px;
+            height: 6px;
+            background: #edf2f7;
+            margin: 0 auto 5px;
+            border-radius: 3px;
+            overflow: hidden;
+            visibility: hidden;
+        }
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: var(--error);
+            transition: width 0.1s linear;
+        }
+
+        canvas {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            max-width: 100%;
+        }
+
+        #helpCanvas { border: none; margin-bottom: 0; }
+
+        .input-area {
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        button.note-btn {
+            padding: 15px 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .piano {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            height: 150px;
+            width: 100%;
+            padding: 0 10px;
+        }
+
+        .key {
+            position: relative;
+            border: 1px solid #ccc;
+            border-radius: 0 0 5px 5px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.1s;
+        }
+
+        .white-key {
+            width: 50px;
+            height: 100%;
+            background: white;
+            z-index: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #a0aec0;
+        }
+
+        .black-key {
+            width: 30px;
+            height: 60%;
+            background: var(--black-key);
+            z-index: 2;
+            margin-left: -15px;
+            margin-right: -15px;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .key:active, .key.active { background: #edf2f7; }
+        .white-key.correct { background: var(--success) !important; color: white; }
+        .white-key.wrong { background: var(--error) !important; color: white; }
+        .black-key.active { background: #1a202c; }
+
+        button.note-btn:disabled, .key.disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+
+        .correct { background-color: var(--success) !important; }
+        .wrong { background-color: var(--error) !important; }
+
+        .feedback {
+            height: 24px;
+            margin-top: 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .stats-container {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .stats { font-size: 0.95rem; color: #4a5568; margin-bottom: 8px; }
+
+        .review-list { font-size: 0.9rem; color: #e53e3e; font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
+
+        @media (max-width: 600px) {
+            .buttons-grid { grid-template-columns: repeat(2, 1fr); }
+            .help-tooltip { width: 300px; right: -20px; }
+            .white-key { width: 35px; font-size: 0.6rem; }
+            .black-key { width: 20px; margin-left: -10px; margin-right: -10px; }
+            .timer-container { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-controls">
+        <div class="settings">
+            <div class="settings-group">
+                <label for="clefSelect">CLAVE</label>
+                <select id="clefSelect">
+                    <option value="treble" selected>Sol</option>
+                    <option value="bass">Fa</option>
+                </select>
+            </div>
+            <div class="settings-group">
+                <label for="modeSelect">FILTRO</label>
+                <select id="modeSelect">
+                    <option value="all" selected>Todo</option>
+                    <option value="lines">Líneas</option>
+                    <option value="spaces">Espacios</option>
+                </select>
+            </div>
+            <div class="settings-group">
+                <label for="inputModeSelect">ENTRADA</label>
+                <select id="inputModeSelect">
+                    <option value="name" selected>Nombre</option>
+                    <option value="piano">Piano</option>
+                </select>
+            </div>
+            <div class="settings-group">
+                <label>RETO</label>
+                <button id="timerToggleBtn" class="timer-toggle">⏱ OFF</button>
+            </div>
+        </div>
+
+        <div class="help-container">
+            <button class="help-btn">?</button>
+            <div class="help-tooltip">
+                <p style="margin: 0 0 10px 0; font-size: 0.9rem; font-weight: bold; color: var(--primary);">Guía de Estudio</p>
+                <canvas id="helpCanvas" width="430" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <h1>Flashcards Musicales</h1>
+
+    <div class="timer-container" id="timerContainer">
+        <div class="timer-bar" id="timerBar"></div>
+    </div>
+    <canvas id="staffCanvas" width="400" height="200"></canvas>
+
+    <div class="input-area" id="inputArea"></div>
+
+    <div class="feedback" id="feedbackArea"></div>
+    
+    <div class="stats-container">
+        <div class="stats" id="statsArea">Aciertos: 0 | Fallos: 0</div>
+        <div class="review-list" id="reviewArea">¡Sigue así! Vas muy bien.</div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('staffCanvas');
+    const ctx = canvas.getContext('2d');
+    const helpCanvas = document.getElementById('helpCanvas');
+    const hctx = helpCanvas.getContext('2d');
+    const clefSelect = document.getElementById('clefSelect');
+    const modeSelect = document.getElementById('modeSelect');
+    const inputModeSelect = document.getElementById('inputModeSelect');
+    const timerToggleBtn = document.getElementById('timerToggleBtn');
+    const timerContainer = document.getElementById('timerContainer');
+    const timerBar = document.getElementById('timerBar');
+    const inputArea = document.getElementById('inputArea');
+    const feedbackArea = document.getElementById('feedbackArea');
+    const statsArea = document.getElementById('statsArea');
+    const reviewArea = document.getElementById('reviewArea');
+
+    const noteNames = ["Do", "Re", "Mi", "Fa", "Sol", "La", "Si"];
+    const frequencies = {
+        "Do": 261.63, "Re": 293.66, "Mi": 329.63, "Fa": 349.23, 
+        "Sol": 392.00, "La": 440.00, "Si": 493.88
+    };
+
+    let currentNote = null;
+    let isWaiting = false;
+    let score = { correct: 0, wrong: 0 };
+    let errorTracker = {};
+    
+    // Configuración Reto (Cronómetro)
+    let isTimerEnabled = false;
+    let timerInterval = null;
+    let timeLeft = 0;
+    const TIMER_LIMIT = 3000; // 3 segundos en ms
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playNote(freq, type = 'sine', duration = 0.5) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playFeedbackSound(isCorrect) {
+        if (isCorrect) {
+            playNote(880, 'sine', 0.15);
+            setTimeout(() => playNote(1100, 'sine', 0.2), 80);
+        } else {
+            playNote(140, 'sawtooth', 0.4);
+        }
+    }
+
+    function getNoteDescription(pos) {
+        if (pos % 2 === 0) {
+            const lines = { "-4":"L1", "-2":"L2", "0":"L3", "2":"L4", "4":"L5" };
+            return lines[pos] || (pos < 0 ? "Adicional Inf." : "Adicional Sup.");
+        } else {
+            const spaces = { "-3":"E1", "-1":"E2", "1":"E3", "3":"E4" };
+            return spaces[pos] || (pos < 0 ? "Espacio Inf." : "Espacio Sup.");
+        }
+    }
+
+    function drawStaffTemplate(ctxObj, width, startY, spacing, showClef = true) {
+        ctxObj.strokeStyle = '#2d3748';
+        ctxObj.lineWidth = 1;
+        for (let i = 0; i < 5; i++) {
+            const y = startY + i * spacing;
+            ctxObj.beginPath(); ctxObj.moveTo(15, y); ctxObj.lineTo(width - 15, y); ctxObj.stroke();
+        }
+        if (showClef) {
+            ctxObj.fillStyle = '#000';
+            const scale = ctxObj === hctx ? 4.5 : 5.5;
+            if (clefSelect.value === 'treble') {
+                ctxObj.font = (spacing * scale) + 'px Arial';
+                ctxObj.fillText('𝄞', 20, startY + spacing * 4.3); 
+            } else {
+                ctxObj.font = (spacing * (scale - 1)) + 'px Arial';
+                ctxObj.fillText('𝄢', 20, startY + spacing * 2.3); 
+            }
+        }
+    }
+
+    function drawHelpReference() {
+        hctx.clearRect(0, 0, helpCanvas.width, helpCanvas.height);
+        const spacing = 12;
+        const drawSection = (title, startY, positions) => {
+            hctx.fillStyle = "#718096"; hctx.font = "bold 11px Arial"; hctx.textAlign = "left";
+            hctx.fillText(title, 15, startY - 25);
+            drawStaffTemplate(hctx, helpCanvas.width, startY, spacing, true);
+            positions.forEach((pos, i) => {
+                let noteIdx = (clefSelect.value === 'treble') ? (6 + pos) % 7 : (1 + pos) % 7;
+                if (noteIdx < 0) noteIdx += 7;
+                const x = 70 + i * 50;
+                const y = (startY + 2 * spacing) - (pos * (spacing / 2));
+                if (pos === -6 || pos === 6) { hctx.beginPath(); hctx.moveTo(x-10, y); hctx.lineTo(x+10, y); hctx.stroke(); }
+                hctx.save(); hctx.translate(x, y); hctx.rotate(-0.2); hctx.beginPath();
+                hctx.ellipse(0, 0, 6, 4.5, 0, 0, Math.PI * 2); hctx.fillStyle = '#000'; hctx.fill(); hctx.restore();
+                hctx.font = 'bold 10px Arial'; hctx.fillStyle = '#4a90e2'; hctx.textAlign = 'center';
+                hctx.fillText(noteNames[noteIdx], x, y + 18);
+            });
+        };
+        drawSection("LÍNEAS", 50, [-6, -4, -2, 0, 2, 4, 6]);
+        drawSection("ESPACIOS", 195, [-5, -3, -1, 1, 3, 5]);
+    }
+
+    function drawStaff() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawStaffTemplate(ctx, canvas.width, 60, 15, true);
+        drawHelpReference();
+    }
+
+    function drawNote(position) {
+        const startY = 60, spacing = 15, step = spacing / 2;
+        const y = (startY + 2 * spacing) - (position * step);
+        const x = canvas.width / 2 + 30;
+        ctx.strokeStyle = '#2d3748'; ctx.lineWidth = 1.5;
+        if (Math.abs(position) >= 6) {
+            const startLine = position >= 6 ? 6 : -6;
+            const dir = position >= 6 ? 2 : -2;
+            for(let p = startLine; position >= 6 ? p <= position : p >= position; p += dir) {
+                const ly = (startY + 2 * spacing) - (p * step);
+                ctx.beginPath(); ctx.moveTo(x - 20, ly); ctx.lineTo(x + 20, ly); ctx.stroke();
+            }
+        }
+        ctx.save(); ctx.translate(x, y); ctx.rotate(-0.2); ctx.beginPath();
+        ctx.ellipse(0, 0, 9, 6.5, 0, 0, Math.PI * 2); ctx.fillStyle = '#000'; ctx.fill(); ctx.restore();
+        ctx.beginPath();
+        if (position >= 0) { ctx.moveTo(x-8.5, y); ctx.lineTo(x-8.5, y+40); }
+        else { ctx.moveTo(x+8.5, y); ctx.lineTo(x+8.5, y-40); }
+        ctx.stroke();
+    }
+
+    function startTimer() {
+        if (!isTimerEnabled) return;
+        clearInterval(timerInterval);
+        timeLeft = TIMER_LIMIT;
+        timerBar.style.width = "100%";
+        
+        timerInterval = setInterval(() => {
+            timeLeft -= 100;
+            const percentage = (timeLeft / TIMER_LIMIT) * 100;
+            timerBar.style.width = percentage + "%";
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                handleTimeOut();
+            }
+        }, 100);
+    }
+
+    function handleTimeOut() {
+        if (isWaiting) return;
+        // Simular un fallo por tiempo
+        feedbackArea.style.color = 'var(--error)';
+        feedbackArea.textContent = "¡Tiempo agotado!";
+        handleGuess("TIMEOUT_ERROR", null);
+    }
+
+    function generateNewNote() {
+        isWaiting = false;
+        feedbackArea.textContent = "";
+        renderInputInterface();
+
+        let pos;
+        const mode = modeSelect.value;
+        do { pos = Math.floor(Math.random() * 15) - 7; } 
+        while ((mode === 'lines' && Math.abs(pos) % 2 !== 0) || (mode === 'spaces' && Math.abs(pos) % 2 === 0));
+
+        let noteIdx = (clefSelect.value === 'treble') ? (6 + pos) % 7 : (1 + pos) % 7;
+        if (noteIdx < 0) noteIdx += 7;
+
+        currentNote = { pos, name: noteNames[noteIdx], description: getNoteDescription(pos) };
+        drawStaff();
+        drawNote(pos);
+        startTimer();
+    }
+
+    function handleGuess(guess, element) {
+        if (isWaiting && guess !== "TIMEOUT_ERROR") return;
+        isWaiting = true;
+        clearInterval(timerInterval);
+
+        const isCorrect = guess === currentNote.name;
+        if (isCorrect) {
+            score.correct++;
+            if (element) element.classList.add('correct');
+            feedbackArea.style.color = 'var(--success)';
+            feedbackArea.textContent = "¡Correcto!";
+            playFeedbackSound(true);
+            setTimeout(() => playNote(frequencies[currentNote.name], 'triangle', 0.5), 250);
+        } else {
+            score.wrong++;
+            const id = `${currentNote.name} (${currentNote.description})`;
+            errorTracker[id] = (errorTracker[id] || 0) + 1;
+            if (element) element.classList.add('wrong');
+            
+            if (guess !== "TIMEOUT_ERROR") {
+                feedbackArea.style.color = 'var(--error)';
+                feedbackArea.textContent = `Error: Era ${currentNote.name}`;
+            }
+            playFeedbackSound(false);
+            
+            // Mostrar respuesta correcta
+            if (inputModeSelect.value === 'name') {
+                document.querySelectorAll('.note-btn').forEach(b => { if(b.textContent === currentNote.name) b.classList.add('correct'); });
+            } else {
+                document.querySelectorAll('.white-key').forEach(k => { if(k.dataset.note === currentNote.name) k.classList.add('correct'); });
+            }
+        }
+
+        statsArea.textContent = `Aciertos: ${score.correct} | Fallos: ${score.wrong}`;
+        updateReviewArea();
+        
+        // Bloquear entrada
+        if (inputModeSelect.value === 'name') {
+            document.querySelectorAll('.note-btn').forEach(b => b.disabled = true);
+        } else {
+            document.querySelectorAll('.key').forEach(k => k.classList.add('disabled'));
+        }
+
+        setTimeout(generateNewNote, 2000);
+    }
+
+    function renderInputInterface() {
+        inputArea.innerHTML = '';
+        if (inputModeSelect.value === 'name') {
+            const grid = document.createElement('div');
+            grid.className = 'buttons-grid';
+            noteNames.forEach(name => {
+                const btn = document.createElement('button');
+                btn.className = 'note-btn';
+                btn.textContent = name;
+                btn.onclick = () => handleGuess(name, btn);
+                grid.appendChild(btn);
+            });
+            inputArea.appendChild(grid);
+        } else {
+            const piano = document.createElement('div');
+            piano.className = 'piano';
+            const pianoNotes = ["Do", "Re", "Mi", "Fa", "Sol", "La", "Si", "Do"];
+            const hasBlackKey = [true, true, false, true, true, true, false];
+            pianoNotes.forEach((name, i) => {
+                const key = document.createElement('div');
+                key.className = 'key white-key';
+                key.textContent = name;
+                key.dataset.note = name;
+                key.onclick = () => { playNote(frequencies[name], 'sine', 0.3); handleGuess(name, key); };
+                piano.appendChild(key);
+                if (i < 7 && hasBlackKey[i]) {
+                    const black = document.createElement('div');
+                    black.className = 'key black-key';
+                    black.onclick = (e) => { e.stopPropagation(); playNote(frequencies[name] * 1.059, 'sine', 0.3); black.classList.add('active'); setTimeout(() => black.classList.remove('active'), 100); };
+                    piano.appendChild(black);
+                }
+            });
+            inputArea.appendChild(piano);
+        }
+    }
+
+    function updateReviewArea() {
+        const failed = Object.entries(errorTracker).filter(([id, count]) => count > 0).sort((a, b) => b[1] - a[1]);
+        if (failed.length === 0) { reviewArea.textContent = "¡Sigue así! Vas muy bien."; return; }
+        reviewArea.innerHTML = '<div style="color:#718096; font-size:0.8rem; margin-bottom:5px">NOTAS A REFORZAR:</div>';
+        failed.slice(0, 3).forEach(([id]) => {
+            const div = document.createElement('div'); div.textContent = `• ${id}`; reviewArea.appendChild(div);
+        });
+    }
+
+    // Handlers
+    timerToggleBtn.onclick = () => {
+        isTimerEnabled = !isTimerEnabled;
+        timerToggleBtn.classList.toggle('active', isTimerEnabled);
+        timerToggleBtn.textContent = isTimerEnabled ? "⏱ ON" : "⏱ OFF";
+        timerContainer.style.visibility = isTimerEnabled ? "visible" : "hidden";
+        generateNewNote();
+    };
+
+    clefSelect.onchange = modeSelect.onchange = inputModeSelect.onchange = () => {
+        score = { correct: 0, wrong: 0 }; errorTracker = {};
+        statsArea.textContent = `Aciertos: 0 | Fallos: 0`;
+        reviewArea.textContent = "¡Sigue así! Vas muy bien.";
+        generateNewNote();
+    };
+
+    window.onload = () => setTimeout(generateNewNote, 100);
+</script>
+
+</body>
+</html>
